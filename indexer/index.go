@@ -22,15 +22,15 @@ package indexer
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
+	"github.com/kmorey/meilindex/config"
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/sirupsen/logrus"
-	"net/http"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
-	"tryffel.net/go/meilindex/config"
 )
 
 // NewMeilisearch creates new connection.
@@ -51,7 +51,7 @@ type Meilisearch struct {
 	Url    string
 	Index  string
 	ApiKey string
-	client *meilisearch.Client
+	client meilisearch.ServiceManager
 
 	lock          sync.Mutex
 	numPushers    int
@@ -61,17 +61,10 @@ type Meilisearch struct {
 
 // Connect creates a connection to meilisearch instance and initializes index if neccessary.
 func (m *Meilisearch) Connect() error {
-	m.client = meilisearch.NewClient(meilisearch.Config{
-		Host:   m.Url,
-		APIKey: m.ApiKey,
-	})
-
-	m.client = meilisearch.NewClientWithCustomHTTPClient(meilisearch.Config{
-		Host:   m.Url,
-		APIKey: m.ApiKey,
-	}, http.Client{
-		Timeout: 10 * time.Second,
-	})
+	m.client = meilisearch.New(
+		m.Url,
+		meilisearch.WithAPIKey(m.ApiKey),
+	)
 
 	version, err := m.ServerVersion()
 	if err != nil {
@@ -80,42 +73,24 @@ func (m *Meilisearch) Connect() error {
 
 	logrus.Infof("Meilisearch version: %s", version)
 
-	indexExists := false
-	_, err = m.client.Indexes().Get(m.Index)
-	if err != nil {
+	index := m.client.Index(m.Index)
+	if index == nil {
 		if e, ok := err.(*meilisearch.Error); ok {
 			if e.StatusCode == 404 {
 				err = nil
-				indexExists = false
 			}
 		}
-
-	} else {
-		indexExists = true
 	}
 
 	if err != nil {
 		return fmt.Errorf("get indexes: %v", err)
 	}
 
-	if !indexExists {
-		logrus.Warning("Creating new index")
-		_, err = m.client.Indexes().Create(meilisearch.CreateIndexRequest{
-			UID:        m.Index,
-			PrimaryKey: "uid",
-		})
-
-	}
-
-	if err != nil {
-		return fmt.Errorf("create index: %v", err)
-	}
-
 	return nil
 }
 
 func (m *Meilisearch) ServerVersion() (string, error) {
-	v, err := m.client.Version().Get()
+	v, err := m.client.Version()
 	if err != nil {
 		return "", err
 	}
@@ -214,21 +189,20 @@ func (m *Meilisearch) indexMail(mail []*Mail, background bool) error {
 		doc["uid"] = fmt.Sprintf("%x", hash)
 	}
 
-	res, err := m.client.Documents(m.Index).AddOrReplace(documents)
+	res, err := m.client.Index(m.Index).AddDocuments(documents)
 
 	if err != nil {
-		if meiliError, ok := err.(*meilisearch.Error); ok {
-			msg := meiliError.MeilisearchMessage
+		var meiliError *meilisearch.Error
+		if errors.As(err, &meiliError) {
+			msg := meiliError.MeilisearchApiError.Message
 			code := meiliError.StatusCode
 			expectedCode := meiliError.StatusCodeExpected
 			err = fmt.Errorf("push %d emails: expected status: %d, got status: %d: %s",
 				len(documents), expectedCode, code, msg)
 			return err
-		} else {
-			return fmt.Errorf("push documents: %v", err)
 		}
 	} else {
-		logrus.Debug("Meilisearch update id: ", res.UpdateID)
+		logrus.Debug("Meilisearch update id: ", res.IndexUID)
 		logrus.Infof("Created / updated %d mails", len(mail))
 	}
 	return nil
@@ -237,30 +211,30 @@ func (m *Meilisearch) indexMail(mail []*Mail, background bool) error {
 // RankingRules returns a list of ranking rules. First rule is the most important, last is least important.
 func (m *Meilisearch) RankingRules() (*[]string, error) {
 
-	return m.client.Settings(m.Index).GetRankingRules()
+	return m.client.Index(m.Index).GetRankingRules()
 }
 
-func (m *Meilisearch) SetRankingRules(rules []string) error {
-	_, err := m.client.Settings(m.Index).UpdateRankingRules(rules)
+func (m *Meilisearch) SetRankingRules(rules *[]string) error {
+	_, err := m.client.Index(m.Index).UpdateRankingRules(rules)
 	return err
 }
 
 // StopWords returns all stop words currently being used.
 func (m *Meilisearch) StopWords() (*[]string, error) {
-	words, err := m.client.Settings(m.Index).GetStopWords()
+	words, err := m.client.Index(m.Index).GetStopWords()
 	if err != nil {
 		return nil, err
 	}
 	return words, nil
 }
 
-func (m *Meilisearch) SetStopWords(words []string) error {
-	_, err := m.client.Settings(m.Index).UpdateStopWords(words)
+func (m *Meilisearch) SetStopWords(words *[]string) error {
+	_, err := m.client.Index(m.Index).UpdateStopWords(words)
 	return err
 }
 
 func (m *Meilisearch) Synonyms() (*map[string][]string, error) {
-	synonyms, err := m.client.Settings(m.Index).GetSynonyms()
+	synonyms, err := m.client.Index(m.Index).GetSynonyms()
 	if err != nil {
 		return nil, err
 	}
@@ -268,19 +242,20 @@ func (m *Meilisearch) Synonyms() (*map[string][]string, error) {
 }
 
 func (m *Meilisearch) SetSynonyms(synonyms *map[string][]string) error {
-	_, err := m.client.Settings(m.Index).UpdateSynonyms(*synonyms)
+	_, err := m.client.Index(m.Index).UpdateSynonyms(synonyms)
 	return err
 }
 
 func (m *Meilisearch) Stats() ServerStats {
-	stats, err := m.client.Stats().Get(m.Index)
+	stats, err := m.client.GetStats()
 	if err != nil {
 		logrus.Errorf("get stats: %v", err)
 	}
 
+	indexStats := stats.Indexes[m.Index]
 	serverStats := ServerStats{
-		NumDocuments: stats.NumberOfDocuments,
-		Indexing:     stats.IsIndexing,
+		NumDocuments: indexStats.NumberOfDocuments,
+		Indexing:     indexStats.IsIndexing,
 	}
 
 	version, err := m.ServerVersion()

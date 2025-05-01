@@ -22,8 +22,8 @@ package widgets
 
 import (
 	"fmt"
+	"github.com/kmorey/meilindex/indexer"
 	"gitlab.com/tslocum/cview"
-	"tryffel.net/go/meilindex/indexer"
 	"tryffel.net/go/twidgets"
 )
 

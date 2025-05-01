@@ -26,10 +26,10 @@ import (
 	"fmt"
 	"github.com/jaytaylor/html2text"
 	"github.com/jmoiron/sqlx"
+	"github.com/kmorey/meilindex/config"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 	"time"
-	"tryffel.net/go/meilindex/config"
 )
 
 type mailSpringPerson struct {

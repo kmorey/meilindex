@@ -22,7 +22,7 @@ package cmd
 
 import (
 	"fmt"
-	"tryffel.net/go/meilindex/config"
+	"github.com/kmorey/meilindex/config"
 
 	"github.com/spf13/cobra"
 )

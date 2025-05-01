@@ -20,7 +20,7 @@
 
 package main
 
-import "tryffel.net/go/meilindex/cmd"
+import "github.com/kmorey/meilindex/cmd"
 
 func main() {
 	cmd.Execute()

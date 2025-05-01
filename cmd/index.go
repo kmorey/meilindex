@@ -22,10 +22,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/kmorey/meilindex/config"
+	"github.com/kmorey/meilindex/indexer"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"tryffel.net/go/meilindex/config"
-	"tryffel.net/go/meilindex/indexer"
 
 	"github.com/spf13/cobra"
 )

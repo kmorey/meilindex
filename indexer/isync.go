@@ -24,11 +24,11 @@ import (
 	"fmt"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
+	"github.com/kmorey/meilindex/config"
+	"github.com/kmorey/meilindex/external"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
-	"tryffel.net/go/meilindex/config"
-	"tryffel.net/go/meilindex/external"
 )
 
 func ReadVerbatimDir(path string, flushFunc func(mails []*Mail) error) error {

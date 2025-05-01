@@ -22,13 +22,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/kmorey/meilindex/config"
+	"github.com/kmorey/meilindex/ui/widgets"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
 	"time"
-	"tryffel.net/go/meilindex/config"
-	"tryffel.net/go/meilindex/ui/widgets"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"

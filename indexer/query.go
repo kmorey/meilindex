@@ -22,17 +22,13 @@ package indexer
 
 import (
 	"fmt"
+	"github.com/kmorey/meilindex/config"
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/mgutz/ansi"
 	"github.com/sirupsen/logrus"
-	"regexp"
 	"strings"
 	"time"
-	"tryffel.net/go/meilindex/config"
 )
-
-var queryPattern = `([+-])?([a-zA-Z]+):(\w+|'[\w ]+')`
-var queryRegex = regexp.MustCompile(queryPattern)
 
 func SearchMail(query string, filter string) {
 	ms := Meilisearch{
@@ -71,11 +67,10 @@ func (m *Meilisearch) Query(query, filter string) ([]*Mail, int, error) {
 	//yellow := ansi.ColorCode("yellow+i:black")
 	//reset := ansi.ColorCode("reset")
 
-	res, err := m.client.Search(m.Index).Search(meilisearch.SearchRequest{
-		Query:                 query,
+	res, err := m.client.Index(m.Index).Search(query, &meilisearch.SearchRequest{
 		Limit:                 100,
 		AttributesToHighlight: []string{"message", "subject", "from"},
-		Filters:               filter,
+		Filter:                filter,
 	})
 
 	if err != nil {

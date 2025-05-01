@@ -21,9 +21,9 @@
 package cmd
 
 import (
+	"github.com/kmorey/meilindex/indexer"
 	"github.com/spf13/cobra"
 	"strings"
-	"tryffel.net/go/meilindex/indexer"
 )
 
 // queryCmd represents the query command

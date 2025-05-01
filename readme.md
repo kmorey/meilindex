@@ -1,7 +1,7 @@
 # Meilindex
 
 [![License](https://img.shields.io/github/license/tryffel/mailindex.svg)](LICENSE)
-[![Godoc Reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/tryffel.net/go/meilindex?tab=overview)
+[![Godoc Reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/kmorey/meilindex?tab=overview)
 
 Email indexing and extremely fast full-text-search with Meilisearch. Meilindex supports configuring 
 stop-words, ranking and synonyms. These are highly user-specific customizations and should be configured 
@@ -22,7 +22,7 @@ Default config file: ~/meilindex.yaml
 
 # Build
 ```
-go get tryffel.net/go/meilindex
+go get github.com/kmorey/meilindex
 ```
 
 # Run

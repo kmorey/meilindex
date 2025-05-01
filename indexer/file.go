@@ -23,12 +23,12 @@ package indexer
 import (
 	"github.com/emersion/go-mbox"
 	"github.com/emersion/go-message/mail"
+	"github.com/kmorey/meilindex/config"
+	"github.com/kmorey/meilindex/external"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"path/filepath"
-	"tryffel.net/go/meilindex/config"
-	"tryffel.net/go/meilindex/external"
 )
 
 // ReadFiles reads files and flushes batched mails to flushFunc

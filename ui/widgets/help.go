@@ -22,10 +22,10 @@ package widgets
 import (
 	"fmt"
 	"github.com/gdamore/tcell"
+	"github.com/kmorey/meilindex/config"
+	"github.com/kmorey/meilindex/indexer"
 	"gitlab.com/tslocum/cview"
 	"strings"
-	"tryffel.net/go/meilindex/config"
-	"tryffel.net/go/meilindex/indexer"
 )
 
 type Help struct {

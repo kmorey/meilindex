@@ -23,11 +23,11 @@ package widgets
 import (
 	"fmt"
 	"github.com/gdamore/tcell"
+	"github.com/kmorey/meilindex/config"
+	"github.com/kmorey/meilindex/external"
+	"github.com/kmorey/meilindex/indexer"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/tslocum/cview"
-	"tryffel.net/go/meilindex/config"
-	"tryffel.net/go/meilindex/external"
-	"tryffel.net/go/meilindex/indexer"
 	"tryffel.net/go/twidgets"
 )
 

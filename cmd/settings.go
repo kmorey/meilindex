@@ -23,10 +23,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/kmorey/meilindex/indexer"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
-	"tryffel.net/go/meilindex/indexer"
 )
 
 // settingsCmd represents the settings command
@@ -111,7 +111,7 @@ func stopWords(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		err = m.SetStopWords(dto.StopWords)
+		err = m.SetStopWords(&dto.StopWords)
 		if err != nil {
 			fmt.Printf("Error applying stopwords: %v\n", err)
 		}
@@ -161,7 +161,7 @@ func rankings(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		err = m.SetRankingRules(dto.RankRules)
+		err = m.SetRankingRules(&dto.RankRules)
 		if err != nil {
 			fmt.Printf("Error applying ranking rules: %v\n", err)
 		}

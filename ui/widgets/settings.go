@@ -22,9 +22,9 @@ package widgets
 import (
 	"fmt"
 	"github.com/gdamore/tcell"
+	"github.com/kmorey/meilindex/indexer"
 	"gitlab.com/tslocum/cview"
 	"strings"
-	"tryffel.net/go/meilindex/indexer"
 )
 
 type Settings struct {
@@ -77,8 +77,10 @@ func NewSettings() *Settings {
 		}
 
 		synonyms, err := meili.Synonyms()
-		s.synonyms += fmt.Sprintf("Total: %d\n", len(*synonyms))
-		if err == nil {
+		if synonyms != nil {
+			s.synonyms += fmt.Sprintf("Total: %d\n", len(*synonyms))
+		}
+		if err == nil && synonyms != nil {
 			for i, v := range *synonyms {
 				s.synonyms += "\n- " + i + ": " + strings.Join(v, ", ")
 			}
